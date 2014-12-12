@@ -7,9 +7,9 @@
     this.roomTabMap = {}
     this.tabRoomMap = {}
     this.user = null
-    this.activeTab = null
+    this.currentTab = null
     this.config = {
-      host : 'http://chat.zerojs.io:3002',
+      host : 'http://127.0.01:3000',
       chat: {
         mode: 'full',
         autoReconnect: true,
@@ -130,7 +130,12 @@
     var root = this
 
     chrome.tabs.onActivated.addListener(function( tabId ){
-      this.activeTab = tabId
+      console.log("setting active tab", tabId)
+      root.currentTab = tabId
+    })
+
+    chrome.tabs.onUpdated.addListener(function( tabId ){
+      if( !root.currentTab ) root.currentTab = tabId
     })
 
     root.messenger.on("client.login",function( respond, user){
@@ -184,7 +189,7 @@
 
     root.messenger.on("server.message", function( respond, msg ){
       if( msg.to ){
-        root.messenger.toClient( respond, {cmd:"message",data:msg, tabId:root.activeTab} )
+        root.messenger.toClient( respond, {cmd:"message",data:msg, tabId:root.currentTab} )
       }else{
         console.log("sending message to room", root.roomTabMap)
         root.roomTabMap[msg.room].forEach(function( tabId){

@@ -26,7 +26,7 @@
 
   Messenger.prototype.setupSocket = function( respond ){
     var root= this
-    root.socket = io.connect(this.host,{reconnect:false})
+    root.socket = io.connect(this.host,{reconnection:true,reconnectionDelay:60000})
 
     root.socket.on('connect',_.once(respond|| _.noop))
 

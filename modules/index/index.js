@@ -1,5 +1,4 @@
 angular.module("index",['chat','mark'])
-  .value('host','http://127.0.0.1:3000')
   .directive("index",function( messenger){
   return {
     restrict : "EA",

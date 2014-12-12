@@ -60,7 +60,7 @@ angular.module('chat', []).config(function($sceDelegateProvider){
       restrict : "EA",
       templateUrl : 'modules/chat/chat.html',
       transclude : true,
-      controller : function ( $scope,host,$http, messenger,$attrs ) {
+      controller : function ( $scope,$http, messenger,$attrs ) {
 
         var socket,
           roomUser = {
