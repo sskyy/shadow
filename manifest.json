@@ -1,0 +1,48 @@
+{
+	"manifest_version" : 2,
+	"name" : "shadow",
+	"description" : "The world behind what you see.",
+	"version" : "0.1",
+	"background": {
+	  "scripts": [
+		"lib/lodash.min.js",
+		"lib/socket.io-1.2.1.js",
+		"lib/jquery.min.js",
+		"background/Dispatcher.js",
+		"background/Chat.js",
+		"background/Injector.js",
+		"background/Messenger.js",
+		"background/index.js"
+	  ],
+	  "persistent": true
+	},
+	"permissions" : [
+		"tabs",
+		"http://*/*",
+		"https://*/*",
+		"http://127.0.0.1:3000/*"
+	],
+	"icons" : {
+		"16":"images/logo.png",
+		"48":"images/logo.png",
+		"128":"images/logo.png"
+	},
+	"web_accessible_resources" : [
+		"lib/angular.min.js",
+		"lib/jquery.min.js",
+		"lib/jquery.tinyscrollbar.min.js",
+		"lib/lodash.compat.min.js",
+		"lib/socket.io-1.2.1.js",
+		"modules/chat/chat.html",
+		"modules/chat/chat.js",
+		"modules/mark/mark-container.html",
+		"modules/mark/mark-scroll.html",
+		"modules/mark/mark.js",
+		"modules/index/index.html",
+		"modules/index/index.js"
+	],
+	"browser_action" : {
+		"default_icon" : "images/logo.png",
+		"default_title" : "shadow"
+	}
+}
