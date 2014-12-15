@@ -9,11 +9,13 @@
     this.user = null
     this.currentTab = null
     this.config = {
-      host : 'http://127.0.01:3000',
+      //host : 'http://127.0.0.1:3000',
+      host : 'http://chat.zerojs.io:3002',
       chat: {
         mode: 'full',
         autoReconnect: true,
-        locked : false
+        locked : false,
+        auto : false
       },
       mark: {
         mode: 'full',
@@ -38,9 +40,9 @@
       }else{
         cb&&cb()
       }
-    }).fail(function(){
+    }).fail(function( res ){
       console.log("login failed", arguments)
-      cb&&cb({err:"user login failed"})
+      cb&&cb( {err:"login failed", code:res.status} )
     })
   }
 
@@ -57,12 +59,14 @@
       }
     }).fail(function( res ){
       console.log("register failed", arguments)
-      cb&&cb({err:"user register failed",code:res.status})
+      cb&&cb( res )
     })
   }
 
   Chat.prototype.connect = function(cb){
     var root = this
+    if( !root.user ) return cb({err:"user not logged in",code:401})
+
     if( root.messenger.status() != "connected"){
       root.messenger.connect(cb)
     }else{
@@ -72,7 +76,6 @@
 
   Chat.prototype.getUser = function(cb){
     var root = this
-    if( root.user === false ) return cb&&cb({err:"user not logged in"})
 
     if( root.user === null){
       $.ajax(root.config.host+'/user/me', {
@@ -85,10 +88,10 @@
         console.log("user already logged in")
         root.user = user
         root.connect(cb)
-      }).fail(function(){
+      }).fail(function(res){
         //mark here, mean we have send this request once.
-        root.user = false
-        cb&&cb({err:"user not logged in"})
+        console.log("get user failed", res)
+        cb&&cb({err:"user not logged in",code:res.status})
       })
     }else{
       root.connect(cb)
@@ -140,8 +143,8 @@
 
     root.messenger.on("client.login",function( respond, user){
       root.login( user, function(err){
-        console.log("login sending respond to tab", root.user)
-        respond( err || root.user )
+        console.log("login sending respond to tab", err, root.user)
+        respond( err )
       })
     })
 
@@ -159,7 +162,9 @@
     })
 
     root.messenger.on("client.connect", function( respond, room, tabId ){
-      root.getUser(function(){
+      root.getUser(function(err){
+        if( err ) return respond(err)
+
         root.changeRoom( respond.bind(respond,root.user),room,tabId)
       })
     })
@@ -231,18 +236,17 @@
   }
 
   Chat.prototype.inject = function( tabId, type){
+    console.log("deal with inject", tabId, type)
     var root = this
 
     type = type || "auto"
 
     if( root.insertedTabs[tabId] && type!=='reload' ) return console.log( tabId, "already injected.")
 
-    if( root.config.auto || type== "force"){
+    //whether auto inject depend on chat.auto
+    if( root.config.chat.auto || type== "force" || (root.insertedTabs[tabId] && type=="reload" )){
       root.injector.inject( tabId, function(){
         root.insertedTabs[tabId] = true
-
-        //once injected, make it auto
-        root.config.auto = true
       })
     }
   }

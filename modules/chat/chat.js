@@ -74,25 +74,31 @@ angular.module('chat', []).config(function($sceDelegateProvider){
         $scope.room = config.locked || location.href.replace(/\?.*$/, "")
         $scope.user = {}
         $scope.locked = Boolean(config.locked)
+        $scope.auto = config.auto
         $scope.messages = []
         $scope.status = 0
         $scope.conversations = {}
         $scope.currentConversation = null
+        $scope.content = ""
 
         $scope.join = function(room){
           $scope.room = room
           messenger.fire('join',room, _.noop)
         }
 
-        $scope.lock = function(locked){
+        $scope.toggleLock = function(locked){
           messenger.fire('config.set',{chat:{locked:locked?$scope.room:false}})
         }
 
-        $scope.connect = function(){
-          console.log("begin to connect to", $scope.room)
+        $scope.toggleAuto = function(auto){
+          messenger.fire('config.set',{chat:{auto:auto}})
+        }
+
+        $scope.connect = function(silent){
           messenger.fire('connect', $scope.room ,function( user ){
             if( !user || user.err ){
-              return console.log("user not logged in")
+              !silent && ($scope.error = user)
+              return console.log("user not logged in", user)
             }
 
             $scope.$apply(function(){
@@ -161,18 +167,22 @@ angular.module('chat', []).config(function($sceDelegateProvider){
               msg.from = {"name":"me"}
               $scope.currentConversation.messages.push(msg)
               $scope.$emit('message.sent')
+              $scope.content = ""
             })
           })
         }
 
         $scope.login = function( user ){
-          messenger.fire("login", user, function(user){
-            if( !user || user.err ){
-              return console.log( "user login failed", user)
-            }
+          messenger.fire("login", user, function(err){
+            $scope.$apply(function() {
+              if( err ){
+                $scope.error = err
+                return console.log( "user login failed", err)
+              }
 
-            console.log("i logged in!")
-            $scope.connect()
+              console.log("i logged in!")
+              $scope.connect()
+            })
           })
         }
 
@@ -186,11 +196,11 @@ angular.module('chat', []).config(function($sceDelegateProvider){
         }
 
         $scope.register = function(user){
-          messenger.fire("register", user, function( res){
+          messenger.fire("register", user, function( err ){
             $scope.$apply(function(){
-              if( !res || res.err ){
-                $scope.error = res
-                return console.log( "user register failed", res)
+              if( err ){
+                $scope.error = err
+                return console.log( "user register failed", err)
               }
 
               console.log("i registered!")

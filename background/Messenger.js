@@ -38,6 +38,10 @@
       root.fire("server.info",letServerKnow || _.noop, info)
     })
 
+    root.socket.on("err",function(info, letServerKnow){
+      root.fire("server.err",letServerKnow || _.noop, info)
+    })
+
     root.socket.on("disconnect",function(){
       console.log("socket disconnected!")
       root.fire("server.disconnect", function(){

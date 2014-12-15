@@ -4,7 +4,7 @@ angular.module('mark',[])
     restrict : "EA",
     templateUrl : 'modules/mark/mark-container.html',
     controller : function( $scope,$http){
-      $scope.host = "http://127.0.01:3000"
+      $scope.host = "http://chat.zerojs.io:3002"
       $scope.marks = []
       $scope.markMode = false
 
