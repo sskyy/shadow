@@ -1,5 +1,5 @@
 angular.module("index",['chat','mark'])
-  .directive("index",function( messenger){
+  .directive("index",function( messenger, config){
   return {
     restrict : "EA",
     templateUrl : "modules/index/index.html",
@@ -11,11 +11,11 @@ angular.module("index",['chat','mark'])
       })
 
 
-      var config = JSON.parse($ele.attr("index"))
+      var parsedConfig = JSON.parse($ele.attr("index"))
 
-      $ele.find("[chat]").attr("chat",JSON.stringify(config.chat ))
-      $ele.find("[mark-container]").attr("mark-container",JSON.stringify(config.mark ))
-
+      $ele.find("[chat]").attr("chat",JSON.stringify(parsedConfig.chat ))
+      $ele.find("[mark-container]").attr("mark-container",JSON.stringify(parsedConfig.mark ))
+      config(parsedConfig)
 
       return function( $scope, $ele ){
 
@@ -75,4 +75,10 @@ angular.module("index",['chat','mark'])
     });
 
     return messenger
+  })
+  .service("config",function(){
+    var config = null
+    return function( data ){
+      return data? (config=data) : config
+    }
   })

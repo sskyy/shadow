@@ -12,6 +12,8 @@
       //host : 'http://127.0.0.1:3000',
       host : 'http://chat.zerojs.io:3002',
       chat: {
+        //may use different host from mark
+        host : 'http://127.0.0.1:3000',
         mode: 'full',
         autoReconnect: true,
         locked : false,

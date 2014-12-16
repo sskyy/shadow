@@ -1,6 +1,7 @@
-angular.module('chat', []).config(function($sceDelegateProvider){
+angular.module('chat', ['inlineattachment']).config(function($sceDelegateProvider){
   $sceDelegateProvider.resourceUrlWhitelist(["self"])
 })
+
   .directive("window",function(){
     return {
       restrict : "EA",
@@ -234,6 +235,7 @@ angular.module('chat', []).config(function($sceDelegateProvider){
           return Object.keys(obj).length
         }
 
+
       },
       compile : function($ele){
         var config = JSON.parse($ele.attr('chat'))
@@ -269,5 +271,129 @@ angular.module('chat', []).config(function($sceDelegateProvider){
       })
     }
   })
+.directive("senderInput",function( config ){
+      return function( $scope, $ele, $attrs ){
+      var allowedTypes = ['image/jpg','image/png']
 
+      $ele[0].addEventListener('paste', function(e) {
+        var result = false,
+          clipboardData = e.clipboardData,
+          items;
+
+        if (typeof clipboardData === "object") {
+
+          items = clipboardData.items || clipboardData.files || [];
+
+          _.forEach(items,function(item){
+            var file = item.getAsFile()
+            if ( isAllowedFile(item)) {
+              $.get( config().chat.host + "/qiniu/uptoken/eleven").then(function(data){
+                upload(file,{
+                  params:{
+                    token : data.uptoken
+                  },
+                  url : "http://up.qiniu.com",
+                  parseResponse: function(xhr) { // jshint unused:false
+                    return JSON.parse(xhr.response);
+                  },
+                  onUploadedFile : function( savedFile){
+                    var content = $ele[0].innerHTML
+                    if( !$ele[0].standard ){
+                      $ele[0].standard = true
+                      content = "<span>"+content+"</span>"
+                    }
+                    $ele[0].innerHTML = content + "<img src='http://houzhenyu.qiniudn.com/"+savedFile.key+"'>"
+                  }
+                });
+              })
+              e.preventDefault()
+            }
+          })
+        }
+      }, false);
+
+      function isAllowedFile(file) {
+        return allowedTypes.indexOf(file.type) >= 0;
+      }
+
+
+    }
+  })
+
+
+
+
+
+
+function upload(file,options) {
+  console.log("upload", file, options)
+  var formData = new FormData(),
+    xhr = new XMLHttpRequest(),
+    extension = 'png';
+
+  options = _.defaults(options||{},{
+    url: 'upload_attachment.php',
+    uploadMethod: 'POST',
+    uploadFieldName: 'file',
+    downloadFieldName: 'filename',
+    allowedTypes: [
+      'image/jpeg',
+      'image/png',
+      'image/jpg',
+      'image/gif'
+    ],
+    params: {},
+    headers: {},
+    onReceivedFile: function() {},
+    parseResponse : function( res ){},
+    onUploadedFile: function() {},
+    onErrorUploading : function(){}
+  })
+
+  // Attach the file. If coming from clipboard, add a default filename (only works in Chrome for now)
+  // http://stackoverflow.com/questions/6664967/how-to-give-a-blob-uploaded-as-formdata-a-file-name
+  if (file.name) {
+    var fileNameMatches = file.name.match(/\.(.+)$/);
+    if (fileNameMatches) {
+      extension = fileNameMatches[1];
+    }
+  }
+
+
+  // Add any available extra parameters
+  if (typeof options.params === "object") {
+    for (var key in options.params) {
+      if (options.params.hasOwnProperty(key)) {
+        formData.append(key, options.params[key]);
+      }
+    }
+  }
+
+  formData.append(options.uploadFieldName, file, file.name || "image-" +Date.now() + "." + extension);
+
+  xhr.open(options.uploadMethod, options.url);
+
+  // Add any available extra headers
+  if (typeof options.headers === "object") {
+    for (var header in options.headers) {
+      if (options.headers.hasOwnProperty(header)) {
+        xhr.setRequestHeader(header, options.headers[header]);
+      }
+    }
+  }
+
+
+
+  xhr.onload = function() {
+    // If HTTP status is OK or Created
+    if (xhr.status === 200 || xhr.status === 201) {
+      console.log( "load", xhr )
+      var data = options.parseResponse(xhr)
+      options.onUploadedFile(data);
+    } else {
+      options.onErrorUploading();
+    }
+  };
+  xhr.send(formData);
+};
 

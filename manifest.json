@@ -2,7 +2,7 @@
 	"manifest_version" : 2,
 	"name" : "shadow",
 	"description" : "The world behind what you see.",
-	"version" : "0.3",
+	"version" : "0.4",
 	"background": {
 	  "scripts": [
 		"lib/lodash.min.js",
@@ -28,7 +28,9 @@
 		"128":"images/logo.png"
 	},
 	"web_accessible_resources" : [
+		"lib/inline-attach.js",
 		"lib/angular.min.js",
+		"lib/angular.inline-attach.js",
 		"lib/jquery.min.js",
 		"lib/jquery.tinyscrollbar.min.js",
 		"lib/lodash.compat.min.js",
