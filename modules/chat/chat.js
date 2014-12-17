@@ -1,4 +1,4 @@
-angular.module('chat', ['inlineattachment']).config(function($sceDelegateProvider){
+angular.module('chat', ['inlineattachment','ngSanitize']).config(function($sceDelegateProvider){
   $sceDelegateProvider.resourceUrlWhitelist(["self"])
 })
 
@@ -56,7 +56,7 @@ angular.module('chat', ['inlineattachment']).config(function($sceDelegateProvide
     }
 
   })
-  .directive("chat",function($sce){
+  .directive("chat",function(){
     return {
       restrict : "EA",
       templateUrl : 'modules/chat/chat.html',
@@ -234,8 +234,6 @@ angular.module('chat', ['inlineattachment']).config(function($sceDelegateProvide
         $scope.length = function( obj ){
           return Object.keys(obj).length
         }
-
-
       },
       compile : function($ele){
         var config = JSON.parse($ele.attr('chat'))
@@ -271,58 +269,96 @@ angular.module('chat', ['inlineattachment']).config(function($sceDelegateProvide
       })
     }
   })
-.directive("senderInput",function( config ){
-      return function( $scope, $ele, $attrs ){
-      var allowedTypes = ['image/jpg','image/png']
+  .directive("senderInput",function( config ){
 
-      $ele[0].addEventListener('paste', function(e) {
-        var result = false,
-          clipboardData = e.clipboardData,
-          items;
 
-        if (typeof clipboardData === "object") {
+    var allowedTypes = ['image/jpg','image/jpeg','image/png'],
+      downloadDomain = "http://houzhenyu.qiniudn.com",
+      uptokenAddr = "/qiniu/uptoken/eleven",
+      uploadUrl = "http://up.qiniu.com",
+      uploadId = 1,
+      parseThisResult = _.partial(parseQiniuUploadRespond, downloadDomain)
 
-          items = clipboardData.items || clipboardData.files || [];
+    return function( $scope, $ele, $attrs ){
 
-          _.forEach(items,function(item){
-            var file = item.getAsFile()
-            if ( isAllowedFile(item)) {
-              $.get( config().chat.host + "/qiniu/uptoken/eleven").then(function(data){
-                upload(file,{
-                  params:{
-                    token : data.uptoken
-                  },
-                  url : "http://up.qiniu.com",
-                  parseResponse: function(xhr) { // jshint unused:false
-                    return JSON.parse(xhr.response);
-                  },
-                  onUploadedFile : function( savedFile){
-                    var content = $ele[0].innerHTML
-                    if( !$ele[0].standard ){
-                      $ele[0].standard = true
-                      content = "<span>"+content+"</span>"
-                    }
-                    $ele[0].innerHTML = content + "<img src='http://houzhenyu.qiniudn.com/"+savedFile.key+"'>"
-                  }
-                });
-              })
-              e.preventDefault()
-            }
+      $ele[0].addEventListener('keyup',function(e){
+        if(e.keyCode==13){
+          $scope.$apply(function(){
+            $scope[$attrs['ngKeyup']]($ele[0].innerHTML)
           })
+          $ele[0].innerHTML = ""
+          $ele[0].standard = false
+          e.preventDefault()
         }
+      })
+
+
+      $ele[0].addEventListener('drop', function(e) {
+        e.stopPropagation();
+        e.preventDefault();
+        _.forEach( e.dataTransfer.files, function( file){
+          receiveItem($ele[0],file)
+        })
       }, false);
-
-      function isAllowedFile(file) {
-        return allowedTypes.indexOf(file.type) >= 0;
-      }
-
-
+      $ele[0].addEventListener('dragenter', function(e) {
+        e.stopPropagation();
+        e.preventDefault();
+      }, false);
+      $ele[0].addEventListener('dragover', function(e) {
+        e.stopPropagation();
+        e.preventDefault();
+      }, false);
     }
+
+
+    function receiveItem( ele, file ){
+      console.log( file )
+      if ( isAllowedFile(file,allowedTypes)) {
+        var thisUploadId = uploadId++
+        readFromFile(file, _.partial(appendAsImg,ele, thisUploadId))
+        $.get( config().chat.host + uptokenAddr).then(function(data){
+          upload(file,{
+            params:{ token : data.uptoken },
+            url : uploadUrl,
+            parseResponse: parseThisResult,
+            onUploadedFile : _.partial(replaceImg, ele,thisUploadId )
+          });
+        })
+        e.preventDefault()
+      }else{
+        alert("不支持该类型的文件:"+file.type)
+      }
+    }
+
+    function readFromFile( file, cb ){
+      var reader = new FileReader();
+      reader.readAsDataURL(file);
+      reader.onload = function(){ cb( reader.result )}
+    }
+
+    function parseQiniuUploadRespond( downloadDomain, xhr ){
+      return downloadDomain + "/" + JSON.parse(xhr.response).key
+    }
+
+    function isAllowedFile(file,allowedTypes) {
+      return allowedTypes.indexOf(file.type) >= 0;
+    }
+
+    function appendAsImg( ele, uploadId, url ){
+      var content = ele.innerHTML
+      if( !ele.standard ){
+        ele.standard = true
+        content = "<span>"+content+"</span>"
+      }
+      ele.innerHTML = content + "<img "+ (uploadId&&"upload-id='"+uploadId+"'")+" src='"+url+"'>"
+    }
+
+    function replaceImg( ele, uploadId, url){
+      $(ele).find("[upload-id="+uploadId+"]").attr("src",url).removeAttr( "upload-id")
+      //console.log("上传成功",uploadId,url,$(ele).find("[upload-id="+uploadId+"]"))
+    }
+
   })
-
-
-
-
 
 
 function upload(file,options) {
@@ -336,16 +372,9 @@ function upload(file,options) {
     uploadMethod: 'POST',
     uploadFieldName: 'file',
     downloadFieldName: 'filename',
-    allowedTypes: [
-      'image/jpeg',
-      'image/png',
-      'image/jpg',
-      'image/gif'
-    ],
     params: {},
     headers: {},
-    onReceivedFile: function() {},
-    parseResponse : function( res ){},
+    parseResponse : function(){},
     onUploadedFile: function() {},
     onErrorUploading : function(){}
   })
@@ -357,6 +386,8 @@ function upload(file,options) {
     if (fileNameMatches) {
       extension = fileNameMatches[1];
     }
+  }else if( file.type ){
+    extension = file.type.split("/").pop()
   }
 
 
@@ -381,7 +412,6 @@ function upload(file,options) {
       }
     }
   }
-
 
 
   xhr.onload = function() {

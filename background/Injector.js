@@ -16,6 +16,7 @@
       "lib/socket.io-1.2.1.js",
       "lib/inline-attach.js",
       "lib/angular.min.js",
+      "lib/angular-sanitize.min.js",
       "lib/angular.inline-attach.js",
       "lib/lodash.compat.min.js",
       "modules/chat/chat.js",

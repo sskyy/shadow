@@ -42,7 +42,7 @@
                         <div ng-repeat="message in currentConversation.messages" class="message">
                             <a ng-click="changeConversation(message.from)">{{message.from.name}}</a>
                             :
-                            <span>{{message.content}}</span>
+                            <span ng-bind-html="message.content" class="message-content"></span>
                         </div>
                     </div>
                 </div>
@@ -52,8 +52,7 @@
                 <div sender-input contenteditable="true"
                     class="form-control"
                     ng-disabled="!connected"
-                    ng-model = "content"
-                    ng-keyup="$event.keyCode==13&&send(content)"
+                    ng-keyup="send"
                     placeholder="按 回车 发送"
                     >
                 </div>
@@ -279,6 +278,13 @@
             padding: 5px;
         }
 
+        .message-content *{
+            display: inline-block;
+            max-width: 100%;
+            margin: 0;
+            padding: 0;
+        }
+
         .sender{
             display: flex;
             flex-direction: row;
@@ -300,6 +306,8 @@
         [sender-input] > *{
             display: inline-block;
             max-width: 100%;
+            margin: 0;
+            padding: 0;
         }
 
         [sender-input]:focus{
