@@ -31,6 +31,7 @@
     root.socket.on('connect',_.once(respond|| _.noop))
 
     root.socket.on("message",function(msg, letServerKnow){
+      console.log("on server message", msg)
       root.fire("server.message",letServerKnow|| _.noop, msg)
     })
 

@@ -194,6 +194,7 @@ button{
 }
 
 [window-handler-setting]:hover [window-handler-dropdown]{
+    z-index: 2500000;
     display: block;
 }
 
