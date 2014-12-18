@@ -190,6 +190,19 @@ angular.module("index",['chat','mark'])
       }
     }
   })
+  .directive("autoScroll",function( $rootScope){
+    return function( $scope, $ele, $attrs){
+      $attrs['autoScroll'].split(',').forEach(function( event){
+        $rootScope.$on( event,function(){
+          window.setTimeout(function(){
+            $ele.animate({
+              scrollTop : $ele[0].scrollHeight - $ele[0].clientHeight
+            },'fast')
+          },100)
+        })
+      })
+    }
+  })
   .service("config",function( messenger ){
     var config = null
 

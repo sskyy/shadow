@@ -26,7 +26,7 @@
 
   Messenger.prototype.setupSocket = function( respond ){
     var root= this
-    root.socket = io.connect(this.host,{reconnection:true,reconnectionDelay:60000})
+    root.socket = io.connect(this.host,{reconnection:true,reconnectionDelay:1000})
 
     root.socket.on('connect',_.once(respond|| _.noop))
 
@@ -79,7 +79,7 @@
   }
 
   Messenger.prototype.toServer = function( respond, data){
-    console.log("sending message to server", data)
+    console.log("sending message to server", data, this.socket)
     if( !this.socket || !this.socket.connected) return console.log("socket is not connected")
     this.socket.emit(data.cmd,data.data, function(){
       console.log("send message success",arguments)

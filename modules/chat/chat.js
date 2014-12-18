@@ -215,17 +215,7 @@ angular.module('chat', ['inlineattachment','ngSanitize']).config(function($sceDe
       }
     }
   })
-  .directive("autoScroll",function( $rootScope){
-    return function( $scope, $ele, $attrs){
-      $attrs['autoScroll'].split(',').forEach(function( event){
-        $rootScope.$on( event,function(){
-          $ele.animate({
-            scrollTop : $ele[0].scrollHeight - $ele[0].clientHeight + 20
-          },'fast')
-        })
-      })
-    }
-  })
+
   .directive("appSenderInput",function( config ){
 
 

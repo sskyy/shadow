@@ -10,6 +10,7 @@
     this.currentTab = null
     this.config = {
       host : 'http://chat.zerojs.io:3002',
+      //host : 'http://127.0.0.1:3000',
       chat: {
         //may use different host from mark
         host : 'http://127.0.0.1:3000',
@@ -133,12 +134,13 @@
   Chat.prototype.setup = function(){
     var root = this
 
-    chrome.tabs.onActivated.addListener(function( tabId ){
-      console.log("setting active tab", tabId)
-      root.currentTab = tabId
+    chrome.tabs.onActivated.addListener(function( tab ){
+      console.log("setting active tab", tab)
+      root.currentTab = tab.id
     })
 
     chrome.tabs.onUpdated.addListener(function( tabId ){
+       console.log("update tab",tabId)
       if( !root.currentTab ) root.currentTab = tabId
     })
 
@@ -247,7 +249,7 @@
   Chat.prototype.inject = function( tabId, type){
     console.log("deal with inject", tabId, type)
     var root = this
-
+    root.currentTab = tabId
     type = type || "auto"
 
     if( root.insertedTabs[tabId] && type!=='reload' ) return console.log( tabId, "already injected.")
