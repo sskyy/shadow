@@ -1,10 +1,10 @@
 angular.module('mark',[])
-  .directive("markContainer", function(){
+  .directive("markContainer", function(messenger, config){
   return {
     restrict : "EA",
     templateUrl : 'modules/mark/mark-container.html',
     controller : function( $scope,$http){
-      $scope.host = "http://chat.zerojs.io:3002"
+      $scope.host = config().mark.host
       $scope.marks = []
       $scope.markMode = false
 
@@ -60,12 +60,11 @@ angular.module('mark',[])
     },
     link : function( $scope, $ele, $attrs){
       var inputMode = false,
-        config = JSON.parse($ele.attr('mark-container')),
-        scrollInited = false
+        markConfig = config().mark
 
-      $scope.openMode = config.mode
+      $scope.visible = markConfig.visible
 
-        //custom style
+      //custom style
       $ele.css({
         position:"absolute",
         background : "rgba(255,255,255,.3)",
@@ -77,59 +76,54 @@ angular.module('mark',[])
         "z-index":99999
       })
 
-      $("body").keydown(function(e){
-        if( $scope.openMode == 'close') return
-        if(e.keyCode==config.controlKeyCode && !inputMode){
-            inputMode = true
 
-          console.log("keydown", window.innerHeight,document.body.clientWidth, window.innerWidth)
-          $ele.attr('mark-mode',true)
-          $ele.css({
-              height : document.body.scrollHeight + "px",
-              width: document.body.scrollWidth + "px"
-            })
+      $("body").keydown(function(e){
+        if( !$scope.visible ) return
+        if(e.keyCode==markConfig.controlKeyCode && !inputMode){
+            inputMode = true
+          showInputMask($ele)
         }
       })
 
       $("body").keyup(function(e){
-        if( $scope.openMode == 'close') return
-        if(e.keyCode==config.controlKeyCode && inputMode){
-          $ele.attr('mark-mode',false)
+        if( !$scope.visible ) return
+        if(e.keyCode==markConfig.controlKeyCode && inputMode){
           inputMode=false
-          $ele.css({
-            height : 0,
-            width: 0
-          })
+          hideInputMask($ele)
         }
       })
 
+      messenger.on("config.set",function( newConfig ){
+        console.log("get new config", newConfig)
+        $scope.$apply(function(){
+          $scope.visible = newConfig.mark.visible
+        })
+      })
 
-      function switchMode( mode, silent ){
-          if( mode == "full" && !scrollInited ){
-            console.log( $attrs['markScrollInit'])
-            $scope[$attrs['markScrollInit']]()
-          }
-
-          $scope.openMode = mode
-          !silent && $ele.trigger("mark.switch", mode)
+      function showInputMask( $ele){
+        $ele.attr('mark-mode',true)
+        $ele.css({
+          height : document.body.scrollHeight + "px",
+          width: document.body.scrollWidth + "px"
+        })
       }
 
-      $ele.find("[mark-handler-close]").click(function(e){
-        e.preventDefault()
-        $scope.$apply(function() {
-          switchMode("close" )
+      function hideInputMask($ele){
+        $ele.attr('mark-mode',false)
+        $ele.css({
+          height : 0,
+          width: 0
         })
-      })
+      }
 
-      $ele.find("[mark-handler-open]").click(function(e){
-        e.preventDefault()
-        $scope.$apply(function() {
-          switchMode("full")
-        })
-      })
+      function setInputMask($ele, visible){
+        if( visible ){
+          showInputMask($ele)
+        }else{
+          hideInputMask($ele)
+        }
+      }
 
-      //init
-      switchMode( $scope.openMode, true )
 
     }
   }
@@ -222,7 +216,6 @@ angular.module('mark',[])
           height : trackHeight
         })
 
-        var $ele = $ele
         var loadingData = false
 
         $ele.find('.overview').height(trackHeight*$scope.count/$scope.view )

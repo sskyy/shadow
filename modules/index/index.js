@@ -38,10 +38,7 @@ angular.module("index",['chat','mark'])
           })
         })
 
-        $ele.on('mark.switch',function( e, mode ){
-          console.log("setting mark mode", mode)
-          generateConfigSetter({mark:{mode:mode}})()
-        })
+
 
       }
     }
@@ -76,8 +73,130 @@ angular.module("index",['chat','mark'])
 
     return messenger
   })
-  .service("config",function(){
+  .directive("window",function(){
+    return {
+      restrict : "EA",
+      link:function(scope, $ele, $attrs ){
+        var fullHehgit =  window.innerHeight -30
+        var fullWidth =  500
+
+        var mode = $attrs['window']
+
+        var $overview = $ele.find('[window-overview]')
+        var $body = $ele.find('[window-body]')
+        var $handlers= $ele.find('[window-handlers]')
+
+        //$ele.find('[window-handler-close]')
+        $ele.find('[window-handler-minimal]').click(minimalMode)
+        $ele.find('[window-handler-full]').click(fullMode)
+        $ele.find('[window-handler-full-trigger]').click(fullMode)
+        $ele.find('[window-handler-close]').click(close)
+
+        function fullMode(e,silent){
+          $ele.attr("window","full")
+          $ele.height( fullHehgit)
+          !silent && $ele.trigger('full')
+        }
+
+        function minimalMode(e,silent){
+          $ele.attr("window","min")
+          console.log(silent,"silent")
+          !silent && $ele.trigger('minimal')
+        }
+
+        function close(){
+          $ele.trigger('close')
+          $ele.remove()
+        }
+
+        (mode=='full') ? fullMode(null,true) : minimalMode(null,true)
+
+      }
+    }
+
+  })
+  .directive("configSetter",function(config, messenger){
+    function getRef( obj, name ){
+      var ns = name.split('.'),
+        ref = obj,
+        currentName
+
+      while( currentName = ns.shift() ){
+        if(_.isObject(ref) && ref[currentName]){
+          ref = ref[currentName]
+        }else{
+          ref = undefined
+          break;
+        }
+      }
+
+      return ref
+    }
+
+
+    function setRef( obj, name, data){
+
+      var ns = name.split('.'),
+        ref = obj,
+        currentName
+
+      while( currentName = ns.shift() ){
+        if( ns.length == 0 ){
+          if( _.isObject(ref[currentName] )){
+            _.merge(ref[currentName], data)
+
+          }else{
+            if( ref[currentName] !== undefined ) console.log("you are changing a exist data",name)
+            ref[currentName] = data
+          }
+
+        }else{
+          if( !_.isObject(ref[currentName])) {
+            if( ref[currentName] !== undefined ) console.log("your data will be reset to an object",currentName)
+            ref[currentName] = {}
+          }
+          ref = ref[currentName]
+        }
+      }
+
+    }
+
+    return {
+      scope : {
+        trueValue : "@",
+        falseValue : "@"
+      },
+      link : function( $scope, $ele, $attrs){
+        var currentConfig = config()
+        var item = $attrs['configSetter']
+        var itemValue = getRef( currentConfig, item )
+        var trueValue  = $scope.trueValue || true
+        var falseValue = $scope.falseValue || false
+        var checked = itemValue==trueValue
+        var $checkbox = $("<input type='checkbox'>")
+        var $label = $("<label></label>").append( $ele[0].innerHTML )
+
+        $checkbox.attr("checked",checked)
+        $ele[0].innerHTML = ""
+        $ele.append($checkbox).append($label)
+
+        $ele.click(function sendChangeRequest(){
+          checked = !checked
+          setRef( currentConfig, item, checked?trueValue:falseValue )
+          console.log( JSON.stringify(currentConfig),"currentConfig")
+          messenger.fire("config.set", currentConfig)
+          $checkbox.attr("checked",checked)
+        })
+      }
+    }
+  })
+  .service("config",function( messenger ){
     var config = null
+
+    messenger.on("config.set",function( newConfig ){
+      config = newConfig
+    })
+
     return function( data ){
       return data? (config=data) : config
     }

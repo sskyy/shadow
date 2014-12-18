@@ -1,0 +1,193 @@
+/**
+for pages
+*/
+[app-logo]{
+    width: 135px;
+    height: 135px;
+    margin: 0 auto;
+    background-image: url('../../images/logo-white.svg');
+    background-size: cover;
+}
+
+[app-slogon]{
+    color:#B0E89C;
+    font-size: 12px;
+}
+
+[window-page="landing"] [app-slogon]{
+    display: block;
+    text-align: center;
+    margin: 20px auto 50px auto;
+}
+
+[app-room]{
+    background: #ECEFF1;
+    padding: 8px 8px 8px 15px;
+    font-size: 12px;
+}
+
+input[app-room-input]{
+    background: transparent;
+    padding: 0;
+    margin: 0;
+    width: 90%;
+    color:#B5C2CB;
+}
+
+[app-messages] {
+    flex: 1;
+    overflow-y: scroll;
+    padding: 7px 21px;
+}
+
+[app-message]{
+    font-size: 12px;
+    margin-bottom: 4px;
+}
+
+[app-message-header]{
+    padding: 2px 0;
+}
+
+[app-message-user-name]{
+    color:#6D6D6D;
+}
+
+[app-message-time]{
+    color:#B9B9B9;
+    margin-left: 4px;
+}
+
+[app-message-body]{
+    position: relative;
+}
+
+[app-message-body] .triangle{
+    position: absolute;
+    top : -4px;
+    left: 10px;
+}
+
+[app-message-body] .triangle.right.bgb{
+    left:auto;
+    right:10px;
+    border-color:transparent transparent  #77C4F1 transparent ;
+}
+
+[app-message-content]{
+    display: inline-block;
+    background: #7ED589;
+    border-radius: 3px;
+    padding: 12px;
+    color:#fff;
+    word-spacing: 150%;
+}
+
+[app-message-content] > *{
+    display: inline-block;
+    max-width: 100%;
+}
+
+[app-sender] {
+    display: flex;
+    flex-direction: row;
+    position: relative;
+    padding: 10px;
+    border-top:#ECF0F3 1px solid;
+}
+
+[app-sender-input] {
+    width: 100%;
+    height: 100px;
+    border-width: 0;
+    margin: 10px;;
+    overflow-y: auto;
+    overflow-x: hidden;
+    padding: 10px;
+    box-sizing: border-box;
+    word-wrap: break-word;
+    border-radius: 3px;
+    background: #fff;
+    border-top:#ECF0F3 1px solid;
+    text-align: left;
+}
+
+[app-sender-input] > * {
+    display: inline-block;
+    max-width: 100%;
+    margin: 0;
+    padding: 0;
+}
+
+[app-sender-input]:hover{
+    cursor: text;
+}
+
+[app-sender-input]:focus {
+    outline: none;
+}
+
+
+[app-conversations-status]{
+    width: 14px;
+    height: 14px;
+    background-image: url("../../images/popup.svg");
+    background-size: cover ;
+    background-repeat: no-repeat ;
+}
+
+[app-conversations]{
+    padding: 8px 15px 8px 15px;
+}
+
+[app-conversation]{
+    display: inline-block;
+    margin-right:8px ;
+    position: relative;
+}
+
+[app-conversation-avatar]{
+    display:inline-block ;
+    width: 23px;
+    height: 23px;
+    background-color: #ccc;
+    background-image: url("../../images/popup.svg") ;
+    background-position: center center ;
+    background-repeat: no-repeat ;
+    background-size:60% 60% ;
+    border-radius: 3px ;
+}
+
+
+
+[app-conversation-unread]{
+    display: none;
+    position: absolute;
+    width: 10px;
+    height: 10px;
+    border-radius: 5px;
+    right: -2px;
+    top:-2px;
+    background: #FF6B6B;
+}
+
+[app-conversation-unread].active {
+    display: inline-block;
+}
+
+
+/**
+lib
+*/
+.tar{
+    text-align: right;
+}
+
+.bgb{
+    background: #77C4F1;
+}
+
+
+
+
+

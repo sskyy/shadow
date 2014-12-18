@@ -9,18 +9,17 @@
     this.user = null
     this.currentTab = null
     this.config = {
-      //host : 'http://127.0.0.1:3000',
       host : 'http://chat.zerojs.io:3002',
       chat: {
         //may use different host from mark
         host : 'http://127.0.0.1:3000',
         mode: 'full',
         autoReconnect: true,
-        locked : false,
-        auto : false
+        locked : false
       },
       mark: {
-        mode: 'full',
+        host : 'http://chat.zerojs.io:3002',
+        visible: false,
         controlKeyCode : 91
       },
       auto: false
@@ -191,6 +190,7 @@
       root.config =_.merge(root.config, config)
       respond(_.cloneDeep(root.config))
       console.log("config changed",root.config)
+      root.broadcast("config.set",root.config, _.noop)
     })
 
 
@@ -221,6 +221,13 @@
 
   }
 
+  Chat.prototype.broadcast = function( msg, data, cb ){
+    var root = this
+    Object.keys(root.insertedTabs).forEach(function(tabId){
+      root.messenger.toClient(cb,{cmd:msg,data:data, tabId:tabId})
+    })
+  }
+
   Chat.prototype.disconnect = function(){
     var root = this
     _.forEach(root.insertedTabs,function(n, tabId){
@@ -246,7 +253,7 @@
     if( root.insertedTabs[tabId] && type!=='reload' ) return console.log( tabId, "already injected.")
 
     //whether auto inject depend on chat.auto
-    if( root.config.chat.auto || type== "force" || (root.insertedTabs[tabId] && type=="reload" )){
+    if( root.config.auto || type== "force" || (root.insertedTabs[tabId] && type=="reload" )){
       root.injector.inject( tabId, function(){
         root.insertedTabs[tabId] = true
       })

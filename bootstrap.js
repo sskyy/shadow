@@ -1,5 +1,6 @@
 //load templates
 var templateUrls = ['modules/index/index.html', 'modules/chat/chat.html', 'modules/mark/mark-scroll.html', 'modules/mark/mark-container.html']
+var cssUrls = ['modules/index/index.css','modules/chat/chat.css','modules/mark/mark.css']
 
 $.when.apply($, templateUrls.map(function (url) {
   return $.get(chrome.extension.getURL(url))
@@ -18,10 +19,19 @@ $.when.apply($, templateUrls.map(function (url) {
     var $index = $('<div index=\''+JSON.stringify(config)+'\'></div>')
     angular.bootstrap($index, ['index'])
 
-    $("body").append("<div id='shadow_world'></div>")
-    $($("#shadow_world")[0].createShadowRoot()).append($index)
+    var $root = $("<div></div>"),
+      $shadowRoot = $($root[0].createShadowRoot())
 
-    console.log( config )
+    $("body").append($root)
+
+    var imports = ""
+    cssUrls.forEach(function( relativeUrl ){
+      imports += "@import url(" + chrome.extension.getURL(relativeUrl) + ");\n"
+    })
+    $shadowRoot.append("<style>\n"+imports+"</style>")
+
+    $shadowRoot.append($index)
+
   });
 
 

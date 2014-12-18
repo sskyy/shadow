@@ -1,0 +1,60 @@
+[mark]{
+    background: #fff;
+    padding: 2px 8px;
+    border-left: 3px #9AE4F1 solid;
+    opacity: .5;
+    transition: opacity .2s;
+}
+[mark-mode=true] [mark]{
+    opacity: 1;
+}
+
+[mark-input] input{
+    background: #fff;
+    padding: 2px 8px;
+    border : 0px #fff solid;
+    border-left: 3px #9AE4F1 solid;
+}
+
+[mark-input] input:focus{
+    outline: none;
+}
+
+[mark-handlers]{
+    box-shadow: 0 0 20px rgba(0,0,0,.42);
+    padding: 5px;
+    position: fixed;
+    bottom:0;
+    right : 23px;
+    height:35px;
+    background: #fff;
+}
+
+[mark-handler]{
+    display: inline-block;
+    width: 14px;
+    height: 18px;
+    background: #eee;
+    cursor: pointer;
+}
+
+[mark-handler-close]{
+    border-bottom: 5px #34C8E2 solid;
+}
+[mark-handler-open]{
+    border-top: 5px #34C8E2 solid;
+}
+
+
+
+
+
+[mark-scroll] { width: 50px; height:100%; }
+[mark-scroll] .viewport { width: 100%; height: 100%; overflow: hidden; position: relative; }
+[mark-scroll] .overview { list-style: none; position: absolute; left: 0; top: 0; padding: 0; margin: 0; }
+[mark-scroll] .scrollbar{opacity: 0.5; background: #97cac1; position: relative;  float: right; width: 100%;overflow: hidden }
+[mark-scroll] .track { background: #68b4b4; height: 100%; width:100%; position: relative; }
+[mark-scroll] .thumb { background: #34C8E2; height: 20px; width: 100%; cursor: pointer; overflow: hidden; position: absolute; top: 0; left: 0; box-shadow: 0 0 3px rgba(0,0,0,.5)}
+[mark-scroll] .thumb .end { background: #898 ; overflow: hidden; height: 0; width: 100%; }
+[mark-scroll] .disable { display: none; }
+.noSelect { user-select: none; -webkit-user-select: none; }

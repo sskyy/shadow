@@ -1,366 +1,101 @@
-<div ng-init="connect(true)" class="window" window>
-    <div class="window-handlers" window-handlers>
-        <a class="window-min window-handler" window-handler-minimal></a>
-        <a class="window-min window-handler" window-handler-close></a>
-        <!--<a class="window-close window-handler" window-handler-close>x</a>-->
+<div ng-init="connect(true)" window>
+    <div window-page="landing" ng-show="!user.id">
+        <div app-logo></div>
+        <div app-slogon>新潮社交blabla</div>
+        <form name="landing">
+            <div class="info">
+                <span ng-show="error.code==400">email已存在</span>
+                <span ng-show="error.code==404">用户名或密码错误</span>
+                <span ng-show="error.code==406">用户名或密码错误</span>
+                <span ng-show="error.code==0">无法连接到服务器,请稍后再试</span>
+            </div>
+            <div form-line>
+                <input type="text" ng-model="user.email" class="form-control" placeholder="email">
+            </div>
+            <div form-line>
+                <input type="password" ng-model="user.password" class="form-control" ng-keyup="$event.keyCode==13&&login(user)" placeholder="password">
+            </div>
+            <div form-line>
+                <button ng-click="login(user)" >登陆</button>
+            </div>
+            <div form-line ng-init="newUser">
+                <a href="http://chat.zerojs.io:3002/user/register">还没有账号? 快注册</a>
+            </div>
+        </form>
     </div>
 
-    <div window-overview>
-        <a window-handler-full ng-show="length(conversations)==0"></a>
-        <div class="conversations" window-handler-full-trigger>
-            <div ng-repeat="conversation in conversations" ng-click="changeConversation(conversation.user)" class="conversation-user">
-                <span class="conversation-user-name">{{conversation.user.name}}</span>
-                <span ng-show="conversation.unread!==0">({{conversation.unread}})</span>
+    <div window-page="chat" ng-show="user.id">
+        <div window-header>
+            <div>
+                <div app-name>约吗</div>
+                <div app-slogon>我们是新潮社交</div>
+            </div>
+            <div window-handlers>
+                <a window-handler-minimal></a>
+                <a window-handler-setting>
+                    <div window-handler-dropdown>
+                        <div window-handler-dropdown-item >
+                            <div config-setter="chat.locked" true-value="{{room}}">锁定</div>
+                        </div>
+                        <div window-handler-dropdown-item >
+                            <div config-setter="auto">自动打开</div>
+                        </div>
+                        <div window-handler-dropdown-item >
+                            <div config-setter="mark.visible" >反人类模式</div>
+                        </div>
+                        <div window-handler-dropdown-item ng-click="logout()">
+                            <label>退出账号</label>
+                        </div>
+                        <div window-handler-dropdown-item window-handler-close>
+                            <label>关闭应用</label>
+                        </div>
+                    </div>
+                </a>
             </div>
         </div>
-    </div>
 
-    <div class="window-body" window-body>
-        <h3 class="title">随网页变换房间超越企鹅可私信接受投资坐等用户破十万聊天器</h3>
-        <div class="main" ng-class="{empty:!user.id}">
+        <div window-overview window-handler-full-trigger>
+            <div app-conversations-status></div>
+        </div>
 
-            <div class="conversations" ng-show="user.id">
-                <div class="conversation-list" ng-if="length(conversations)>1">
-                    <div ng-repeat="conversation in conversations" ng-click="changeConversation(conversation.user)" class="conversation-user" ng-class="{active:currentConversation.user.id==conversation.user.id}">
-                        <span class="conversation-user-name">{{conversation.user.name}}</span>
-                        <span ng-show="conversation.unread!==0">({{conversation.unread}})</span>
-                        <a ng-click="deleteConversation(conversation.user)&&$event.preventDefault()" class="conversation-user-delete">x</a>
-                    </div>
+
+        <div window-body>
+            <div app-room>
+                <input app-room-input type="text" ng-keyup="$event.keyCode==13&&join(room)" ng-model="room" ng-disabled="locked">
+            </div>
+
+            <div app-conversations ng-if="length(conversations)>1">
+                <div app-conversation ng-repeat="conversation in conversations" ng-click="changeConversation(conversation.user)" ng-class="{active:currentConversation.user.id==conversation.user.id}">
+                    <span app-conversation-avatar>
+                        <img ng-if="conversation.user.avatar" ng-src="{{conversation.user.avatar}}">
+                    </span>
+                    <span app-conversation-unread ng-class="{active:conversation.unread>0}"></span>
                 </div>
-                <div class="conversation">
-                    <div ng-if="currentConversation.user.id==0">
-                        <div class="room">
-                            <input type="text" class="input-room form-control" ng-model="room" ng-disabled="locked">
-                            <a class="btn form-control form-item" ng-click="join(room)">进入</a>
-                            <span class="form-checkbox form-item">
-                                <input type="checkbox" class="form-control" ng-model="locked" ng-click="toggleLock(!locked)"><label>锁定</label>
-                                <input type="checkbox" class="form-control" ng-model="auto" ng-click="toggleAuto(!auto)"><label>自动打开</label>
-                            </span>
-                        </div>
+            </div>
+
+
+            <div app-messages auto-scroll="message.received,message.sent">
+                <div ng-repeat="message in currentConversation.messages" app-message>
+                    <div app-message-header ng-class="{tar:message.from.id==user.id}">
+                        <a ng-click="changeConversation(message.from)" app-message-user-name>{{message.from.name}}</a>
+                        <span app-message-time>{{message.time}}</span>
                     </div>
-                    <div  class="messages" auto-scroll="message.received,message.sent">
-                        <div ng-repeat="message in currentConversation.messages" class="message">
-                            <a ng-click="changeConversation(message.from)">{{message.from.name}}</a>
-                            :
-                            <span ng-bind-html="message.content" class="message-content"></span>
-                        </div>
+                    <div app-message-body ng-class="{tar:message.from.id==user.id}">
+                        <!--<div class="triangle" ng-class="{right:!message.from.id,bgb:!message.from.id}"></div>-->
+                        <div ng-class="{bgb:message.from.id==user.id}" ng-bind-html="message.content" app-message-content></div>
                     </div>
                 </div>
             </div>
 
-            <div class="sender"  ng-show="user.id">
-                <div sender-input contenteditable="true"
-                    class="form-control"
-                    ng-disabled="!connected"
-                    ng-keyup="send"
-                    placeholder="按 回车 发送"
+            <div app-sender  ng-show="user.id">
+                <div app-sender-input contenteditable="true"
+                     class="form-control"
+                     ng-disabled="!connected"
+                     ng-keyup="send"
+                     placeholder="按 回车 发送"
                     >
                 </div>
             </div>
         </div>
-
-        <div class="user">
-            <div ng-show="user.id&& !connected">
-
-            </div>
-
-            <div ng-show="!user.id">
-                <div>
-                    <input type="text" ng-model="user.email" class="form-control" placeholder="email">
-                    <input type="password" ng-model="user.password" class="form-control" ng-keyup="$event.keyCode==13&&login(user)" placeholder="password">
-                    <a ng-click="login(user)" class="btn">登陆</a>
-                </div>
-                <div class="info">
-                    <span ng-show="!error">还没有账号?快注册吧!</span>
-                    <span ng-show="error.code==400">email已存在</span>
-                    <span ng-show="error.code==406">用户名或密码错误</span>
-                    <span ng-show="error.code==0">无法连接到服务器,请稍后再试</span>
-                </div>
-                <div ng-init="newUser">
-                    <input type="text" ng-model="newUser.email" class="form-control" placeholder="email">
-                    <input type="text" ng-model="newUser.name" class="form-control" placeholder="name">
-                    <input type="password" ng-model="newUser.password" class="form-control" ng-keyup="$event.keyCode==13&&register(newUser)" placeholder="password">
-                    <a ng-click="register(newUser)" class="btn">注册</a>
-                </div>
-            </div>
-
-            <div ng-show="user.id">
-                <div>
-                    <span ng-show="!connected">
-                        <span>已断开</span>
-                        <a ng-click="reconnect()">立即重联</a>
-                    </span>
-                    <span>{{user.name}}</span>
-                    <a ng-click="logout()" class="btn">退出</a>
-                </div>
-            </div>
-
-        </div>
     </div>
-
-    <style>
-        *{
-            box-sizing: border-box;
-        }
-
-        a:hover{
-            cursor: pointer;
-            text-decoration: underline;
-        }
-
-        input[type=text]{
-            padding-top: 0;
-            padding-bottom: 0;
-        }
-        .ng-hide{
-            display: none !important;
-        }
-
-        .form-control{
-            vertical-align: middle;
-            margin: 0;
-            display: inline-block;
-            line-height: 28px;
-            height: 28px;
-        }
-        .form-item{
-            margin-right: 8px;
-        }
-
-        .form-radio input.form-control{
-            margin-right: 5px;
-        }
-    </style>
-
-    <style>
-        .window{
-            z-index: 99999;
-            position: fixed;
-            right:50px;
-            bottom:0;
-            background: #fff;
-            width: 500px;
-            box-sizing: border-box;
-            box-shadow: 0 0 20px rgba(0,0,0,.42);
-            overflow: hidden;
-            font-size: 13px;
-            display: flex;
-            flex-direction: column;
-            /*-webkit-transition: all 2s;*/
-            transition: all .3s;
-        }
-        .window-body{
-            flex:1;
-            display: flex;
-            flex-direction: column;
-        }
-
-        .window-handlers{
-            position: absolute;
-            z-index: 99999;
-            top : 5px;
-            right: 5px;
-            font-size: 24px;
-            font-weight: bolder;
-        }
-        .window-handler{
-            margin-left: 2px;
-            color:#C0401A;
-            cursor: pointer;
-        }
-
-        [window-overview]{
-            padding: 5px;
-        }
-
-        [window-handler-minimal]{
-            display: inline-block;
-            width: 14px;
-            height: 18px;
-            border: 0 #eee solid;
-            background: #eee;
-            border-bottom: 5px #C0401A solid;
-        }
-
-        [window-handler-full]{
-            display: inline-block;
-            width: 14px;
-            height: 18px;
-            background: #eee;
-            border: 0 #eee solid;
-            border-top: 5px #C0401A solid;
-        }
-
-        [window-handler-close]{
-            display: inline-block;
-            width: 18px;
-            height: 18px;
-            border-radius: 9px;
-            background: #C0401A ;
-        }
-
-
-        .title{
-            margin: 10px;
-            text-align: left;
-        }
-
-        .main{
-            flex:1;
-            display: flex;
-            flex-direction: column;
-        }
-
-        .main.empty{
-            background-position: center center;
-            background-repeat: no-repeat;
-            background-image: url("data:image/png;base64,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");;
-        }
-
-        .conversations{
-            border-top: 1px #efefef solid;
-            border-bottom: 1px #efefef solid;
-            flex:1;
-            display: flex;
-            flex-direction: row;
-            z-index: 1;
-        }
-
-        [window-overview] .conversations{
-            border-top:none;
-            border-bottom:none;
-        }
-        .conversation-list{
-            width: 100px;
-            background: #eee;
-        }
-
-        .conversation-user{
-            cursor: pointer;
-            line-height: 28px;
-            border-bottom: #cecece 1px solid;
-            padding: 0 5px;
-            overflow-clip: '...';
-        }
-
-        [window-overview] .conversation-user{
-            border-bottom:none;
-        }
-
-        .conversation-user.active{
-            background: #fff;
-        }
-
-        .conversation-user-delete{
-            float:right;
-        }
-
-        .conversation{
-            flex:1;
-            display: flex;
-            flex-direction: column;
-            text-align: left;
-        }
-
-        .room{
-            margin: 10px;
-            display: flex;
-            flex-direction: row;
-        }
-
-        .room > input{
-            flex:1;
-        }
-
-        .messages{
-            flex:1;
-            overflow-y: scroll;
-            padding: 5px;
-        }
-
-        .message-content *{
-            display: inline-block;
-            max-width: 100%;
-            margin: 0;
-            padding: 0;
-        }
-
-        .sender{
-            display: flex;
-            flex-direction: row;
-            position: relative;
-            background: #fff;
-            padding:10px;
-        }
-
-        [sender-input]{
-            width: 100%;
-            height: 100px;
-            border: 1px #eee solid;
-            margin: 10px;;
-            overflow-y: auto ;
-            overflow-x: hidden;
-            word-wrap: break-word;
-        }
-
-        [sender-input] > *{
-            display: inline-block;
-            max-width: 100%;
-            margin: 0;
-            padding: 0;
-        }
-
-        [sender-input]:focus{
-            border: 1px #ccc solid;
-        }
-
-        .sender:before {
-            content: "";
-            position: absolute;
-            z-index: -1;
-            top: 0;
-            left: 0;
-            width:110%;
-            height: 20%;
-            margin: 0 auto;
-            /*box-shadow: 0 0 10px rgba(125,125,125,0.8);*/
-        }
-
-        .sender > input{
-            flex:1;
-            margin-right: 5px;
-        }
-        .sender > input:focus{
-            outline: none;
-        }
-
-        .user{
-            margin: 10px;
-            text-align: right;
-        }
-
-        .user .info{
-            color:#999;
-            margin: 5px 0;
-        }
-
-        .btn{
-            text-decoration: none !important;
-            color:#fff;
-            font-size: 13px;
-            display: inline-block;
-            line-height: 28px;
-            padding: 0 8px;
-            background: #C0401A;
-            box-shadow: 0 0 3px rgba(0,0,0,.2);
-            user-select: none;
-            cursor: pointer;
-            -webkit-user-select: none;
-        }
-
-
-
-
-
-    </style>
 </div>

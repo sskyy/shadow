@@ -1,0 +1,237 @@
+
+/**
+common
+*/
+* {
+    box-sizing: border-box;
+}
+
+a:link{
+    color:#fff;
+    text-decoration: none;
+}
+a:visited{
+    color:#fff;
+}
+
+a:hover {
+    cursor: pointer;
+    text-decoration: underline;
+}
+
+a:active{
+    color:#fff;
+}
+
+
+
+
+
+input[type=text],input[type=password] {
+    border-radius: 3px;
+    padding: 12px;
+    font-size:inherit;
+    border-width: 0;
+}
+
+input:focus{
+    outline: none;
+}
+
+button{
+    -webkit-appearance: none;
+    background: #7ED589;
+    border-radius: 3px;
+    display: block;
+    padding: 12px;
+    margin: 0;
+    border-width: 0;
+    color:#fff;
+    font-size: inherit;
+    cursor: pointer;
+}
+
+
+[form-line]{
+    margin: 0 auto 15px auto;
+    text-align: center;
+}
+
+.ng-hide {
+    display: none !important;
+}
+
+[window] {
+    display: flex;
+    z-index: 99999;
+    position: fixed;
+    right: 50px;
+    border-radius: 5px;
+    bottom: 0;
+    background: #F1F5F8;
+    width: 400px;
+    box-sizing: border-box;
+    box-shadow: 0 0 20px rgba(0, 0, 0, .42);
+    overflow: hidden;
+    font-size: 14px;
+    flex-direction: column;
+    /*-webkit-transition: all 2s;*/
+    transition: all .1s;
+    justify-content: center;
+    text-align: left;
+}
+
+[window-page] {
+    display: flex;
+    flex-direction: column;
+    flex: 1;
+    justify-content: center;
+}
+
+
+[window-page="landing"] {
+    flex: 1;
+    background: #424653;
+}
+
+
+[window-page="landing"] [logo]{
+    margin-bottom:30px;
+}
+
+[window-page="landing"] [slogon]{
+    margin-bottom:50px;
+}
+
+[window-page="landing"] form[name="landing"]{
+    width: 260px;
+    margin: 0 auto;
+    text-align: center;
+}
+
+[window-page="landing"] form[name="landing"] [form-line] input,[window-page="landing"] form[name="landing"] [form-line] button{
+    width: 100%;
+}
+
+[window-header]{
+    background: #424653;
+    position: relative;
+    display: flex;
+    flex-direction: row;
+    justify-content: space-between;
+    padding: 15px;
+}
+
+[window-header] [app-name]{
+    display: inline-block;
+    font-size:19px;
+    color:#fff;
+}
+
+[window-header] [app-slogon]{
+    display: inline-block;
+}
+
+[window-handlers] {
+
+}
+
+[window-handler] {
+    margin-left: 2px;
+    color: #C0401A;
+    cursor: pointer;
+}
+
+[window-handler-minimal] {
+    display: inline-block;
+    width: 18px;
+    height: 18px;
+    background-image: url("../../images/min.svg");
+    background-size: 100% auto ;
+    background-repeat:no-repeat;
+    background-position:center center ;
+}
+
+[window-handler-setting] {
+    display: inline-block;
+    width: 18px;
+    height: 18px;
+    background-image: url("../../images/setting.svg");
+    background-position:center center ;
+    background-repeat: no-repeat;
+    background-size: 100% 100%;
+    overflow: visible;
+    position: relative;
+}
+[window-handler-setting] [window-handler-dropdown]{
+    display: none;
+    position: absolute;
+    top:17px;
+    right: 0;
+    background: #4A4F5D;
+    padding: 10px;
+    color:#fff;
+    text-align: left;
+    width: 130px;
+    border-radius: 3px;
+}
+
+[window-handler-setting] [window-handler-dropdown-item]{
+    display: block;
+    margin: 8px 0;
+    font-size: 12px;
+}
+
+[window-handler-setting] [window-handler-dropdown-item] label{
+    margin-left: 4px;
+}
+[window-handler-setting] [window-handler-dropdown-item]{
+    cursor: pointer;
+}
+
+[window-handler-setting]:hover{
+
+}
+
+[window-handler-setting]:hover [window-handler-dropdown]{
+    display: block;
+}
+
+[window-handler-setting]:hover [window-handler-dropdown]:hover{
+    cursor: auto;
+}
+
+[window-body] {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+}
+
+
+[window-overview] {
+    display: none;
+    padding: 10px 19px;
+    background: #424653;
+    color:#fff;
+    font-size: 12px;
+    cursor: pointer;
+}
+
+[window-overview] > *{
+    display: inline-block;
+}
+
+[window=min]{
+    width: auto;
+    height: 35px !important;
+    border-bottom-left-radius: 0;
+    border-bottom-right-radius: 0;
+}
+
+[window=min] [window-header],[window=min] [window-body]{
+    display: none;
+}
+
+[window=min] [window-overview] {
+    display: inline-block;
+}

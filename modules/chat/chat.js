@@ -2,60 +2,7 @@ angular.module('chat', ['inlineattachment','ngSanitize']).config(function($sceDe
   $sceDelegateProvider.resourceUrlWhitelist(["self"])
 })
 
-  .directive("window",function(){
-    return {
-      restrict : "EA",
-      link:function(scope, $ele, $attrs ){
-        var fullHehgit =  window.innerHeight -30
-        var fullWidth =  500
 
-        var mode = $attrs['window']
-
-        var $overview = $ele.find('[window-overview]')
-        var $body = $ele.find('[window-body]')
-        var $handlers= $ele.find('[window-handlers]')
-
-        //$ele.find('[window-handler-close]')
-        $ele.find('[window-handler-minimal]').click(minimalMode)
-        $ele.find('[window-handler-full]').click(fullMode)
-        $ele.find('[window-handler-full-trigger]').click(fullMode)
-        $ele.find('[window-handler-close]').click(close)
-
-        function fullMode(e,silent){
-          $ele.height( fullHehgit )
-          $ele.width( fullWidth)
-          $body.css("display","flex")
-          $handlers.show()
-          $overview.hide()
-          !silent && $ele.trigger('full')
-        }
-
-        function minimalMode(e,silent){
-          $ele.height( 35 )
-          $ele.width( 'auto' )
-          $body.hide()
-          $handlers.hide()
-          $overview.show()
-          if( $attrs['onMinimal'] ){
-            $scope.$parent.$apply(function( parentModel){
-              parentModel[$attrs['onFull']]()
-            })
-          }
-          console.log(silent,"silent")
-          !silent && $ele.trigger('minimal')
-        }
-
-        function close(){
-          $ele.trigger('close')
-          $ele.remove()
-        }
-
-        (mode=='full') ? fullMode(null,true) : minimalMode(null,true)
-
-      }
-    }
-
-  })
   .directive("chat",function(){
     return {
       restrict : "EA",
@@ -81,6 +28,7 @@ angular.module('chat', ['inlineattachment','ngSanitize']).config(function($sceDe
         $scope.conversations = {}
         $scope.currentConversation = null
         $scope.content = ""
+        $scope.roomUser = roomUser
 
         $scope.join = function(room){
           $scope.room = room
@@ -88,12 +36,25 @@ angular.module('chat', ['inlineattachment','ngSanitize']).config(function($sceDe
         }
 
         $scope.toggleLock = function(locked){
-          messenger.fire('config.set',{chat:{locked:locked?$scope.room:false}})
+          console.log("setting lock", locked)
+          messenger.fire('config.set',{chat:{locked:locked?$scope.room:false}}, function(){
+            $scope.$apply(function(){
+              $scope.locked = locked
+            })
+          })
         }
 
         $scope.toggleAuto = function(auto){
-          messenger.fire('config.set',{chat:{auto:auto}})
+          messenger.fire('config.set',{chat:{auto:auto}}, function(){
+            $scope.$apply(function() {
+              $scope.auto = auto
+            })
+          })
         }
+
+        messenger.on("config.set",function(config){
+
+        })
 
         $scope.connect = function(silent){
           messenger.fire('connect', $scope.room ,function( user ){
@@ -120,6 +81,7 @@ angular.module('chat', ['inlineattachment','ngSanitize']).config(function($sceDe
 
           messenger.on("message", function( msg){
             $scope.$apply(function() {
+              console.log("received from sever", msg)
               $scope.receive( msg )
             })
           })
@@ -142,16 +104,26 @@ angular.module('chat', ['inlineattachment','ngSanitize']).config(function($sceDe
         }
 
         $scope.receive = function( msg ){
-          var from = msg.to ? msg.from : roomUser
+          var now = new Date
+          msg.time = now.getHours() + ":"+ (now.getMinutes().toString().length==1?("0"+now.getMinutes().toString()):now.getMinutes())
 
-          if( msg.to ){
-            //private conversation
-            if( !$scope.conversations[msg.from.id]) $scope.setConversation(msg.from)
+          var conversationUser
+          if( msg.from.id == $scope.user.id ){
+            conversationUser = $scope.currentConversation.user
+          }else{
+            conversationUser = msg.to? msg.from : roomUser
           }
 
-          $scope.conversations[from.id].messages.push( msg )
-          if( $scope.currentConversation.user.id !== from.id ){
-            $scope.conversations[from.id].unread ++
+          console.log("conversation id", JSON.stringify(conversationUser), JSON.stringify($scope.currentConversation.user))
+
+          if( !$scope.conversations[conversationUser.id] ) $scope.setConversation(conversationUser)
+
+          $scope.conversations[conversationUser.id].messages.push( msg )
+          if( $scope.currentConversation.user.id !== conversationUser.id ){
+            console.log("update unread")
+            $scope.conversations[conversationUser.id].unread ++
+            console.log("conversation id", JSON.stringify($scope.conversations[conversationUser.id]))
+
           }
 
           $scope.$emit('message.received')
@@ -164,11 +136,10 @@ angular.module('chat', ['inlineattachment','ngSanitize']).config(function($sceDe
 
           messenger.fire("message", msg, function(){
             $scope.$apply(function(){
-              console.log("message send success")
-              msg.from = {"name":"me"}
-              $scope.currentConversation.messages.push(msg)
-              $scope.$emit('message.sent')
+              msg.from = $scope.user
+              $scope.receive( msg, true )
               $scope.content = ""
+              $scope.$emit('message.sent')
             })
           })
         }
@@ -192,20 +163,6 @@ angular.module('chat', ['inlineattachment','ngSanitize']).config(function($sceDe
             $scope.$apply(function(){
               console.log("i logged out!")
               $scope.user = {}
-            })
-          })
-        }
-
-        $scope.register = function(user){
-          messenger.fire("register", user, function( err ){
-            $scope.$apply(function(){
-              if( err ){
-                $scope.error = err
-                return console.log( "user register failed", err)
-              }
-
-              console.log("i registered!")
-              $scope.connect()
             })
           })
         }
@@ -269,7 +226,7 @@ angular.module('chat', ['inlineattachment','ngSanitize']).config(function($sceDe
       })
     }
   })
-  .directive("senderInput",function( config ){
+  .directive("appSenderInput",function( config ){
 
 
     var allowedTypes = ['image/jpg','image/jpeg','image/png'],
@@ -288,6 +245,7 @@ angular.module('chat', ['inlineattachment','ngSanitize']).config(function($sceDe
           })
           $ele[0].innerHTML = ""
           $ele[0].standard = false
+          e.stopPropagation()
           e.preventDefault()
         }
       })
