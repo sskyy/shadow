@@ -97,6 +97,16 @@ angular.module('chat', ['inlineattachment','ngSanitize']).config(function($sceDe
               console.log("socket disconnected")
             })
           })
+
+          messenger.on("info",function(info){
+            $scope.$apply(function() {
+              $scope.info = info
+            })
+          })
+        }
+
+        $scope.clearInfo = function(){
+          $scope.info = null
         }
 
         $scope.reconnect = function(){
@@ -131,7 +141,7 @@ angular.module('chat', ['inlineattachment','ngSanitize']).config(function($sceDe
 
         $scope.send = function( content ){
           if( !content.replace(/\t\s\n/g, "").length ) return
-          var msg = {content:content,room:$scope.room}
+          var msg = {content:content.replace(/<!--(.*)-->/ig,""),room:$scope.room}
           if( $scope.currentConversation.user.id !== roomUser.id ) msg.to = $scope.currentConversation.user
 
           messenger.fire("message", msg, function(){

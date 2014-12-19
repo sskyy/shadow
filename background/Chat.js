@@ -9,10 +9,10 @@
     this.user = null
     this.currentTab = null
     this.config = {
-      host : 'http://chat.zerojs.io:3002',
-      //host : 'http://127.0.0.1:3000',
+      //host : 'http://chat.zerojs.io:3002',
+      host : 'http://127.0.0.1:3000',
       chat: {
-        //may use different host from mark
+        //this was used to generate qiniu uptoken
         host : 'http://127.0.0.1:3000',
         mode: 'full',
         autoReconnect: true,
@@ -21,7 +21,7 @@
       mark: {
         host : 'http://chat.zerojs.io:3002',
         visible: false,
-        controlKeyCode : 91
+        controlKeyCode : /AppleWebKit/.test(navigator.userAgent) ? 93 : 17
       },
       auto: false
     }
@@ -212,6 +212,8 @@
       if( info.code && info.code==403){
         console.log("need to login")
         root.reset()
+      }else{
+        root.broadcast("info",info)
       }
     })
 

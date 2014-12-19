@@ -26,6 +26,27 @@ for pages
     font-size: 12px;
 }
 
+[app-info]{
+    position: absolute;
+    top : 31px;
+    left:0;
+    width: 100%;
+    padding: 4px;
+    text-align: center;
+    background: rgba(191, 61, 0, 0.64);
+    color:#fff;
+    font-size:12px;
+}
+
+[app-info-close]{
+    margin-left: 10px;
+    cursor: pointer;
+}
+
+[app-info-close]:hover{
+    text-decoration: none;
+}
+
 input[app-room-input]{
     background: transparent;
     padding: 0;
@@ -127,6 +148,16 @@ input[app-room-input]{
     outline: none;
 }
 
+[app-sender-input][contenteditable=false]{
+    background: #e8e8e8;
+    color:#999;
+    text-align: center;
+}
+
+[app-sender-input][contenteditable=false]:hover{
+    cursor: not-allowed;
+}
+
 
 [app-conversations-status]{
     width: 14px;
@@ -151,11 +182,12 @@ input[app-room-input]{
     width: 23px;
     height: 23px;
     background-color: #ccc;
-    background-image: url("../../images/popup.svg") ;
+    background-image: url("../../images/room-user.svg") ;
     background-position: center center ;
     background-repeat: no-repeat ;
-    background-size:60% 60% ;
+    background-size:100% 100% ;
     border-radius: 3px ;
+    overflow: hidden;
 }
 
 
@@ -175,6 +207,20 @@ input[app-room-input]{
     display: inline-block;
 }
 
+[app-conversation-status]{
+    display: none;
+    position: absolute;
+    width: 10px;
+    height: 10px;
+    border-radius: 5px;
+    right: -2px;
+    top:-2px;
+    background: #7ED589;
+}
+
+[app-conversation-status].active {
+    display: inline-block;
+}
 
 /**
 lib

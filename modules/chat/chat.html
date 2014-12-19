@@ -64,12 +64,18 @@
                 <input app-room-input type="text" ng-keyup="$event.keyCode==13&&join(room)" ng-model="room" ng-disabled="locked">
             </div>
 
+            <div app-info ng-if="info">
+                <span ng-if="info.code=409">您的账号已在别处登陆</span>
+                <a ng-click="clearInfo()" app-info-close>x</a>
+            </div>
+
             <div app-conversations ng-if="length(conversations)>1">
                 <div app-conversation ng-repeat="conversation in conversations" ng-click="changeConversation(conversation.user)" ng-class="{active:currentConversation.user.id==conversation.user.id}">
                     <span app-conversation-avatar>
                         <img ng-if="conversation.user.avatar" ng-src="{{conversation.user.avatar}}">
                     </span>
                     <span app-conversation-unread ng-class="{active:conversation.unread>0}"></span>
+                    <span app-conversation-status ng-class="{active:currentConversation.user.id==conversation.user.id,inActive:conversation.user.offline}"></span>
                 </div>
             </div>
 
@@ -88,12 +94,13 @@
             </div>
 
             <div app-sender  ng-show="user.id">
-                <div app-sender-input contenteditable="true"
+                <div app-sender-input contenteditable="{{connected}}"
                      class="form-control"
                      ng-disabled="!connected"
                      ng-keyup="send"
                      placeholder="按 回车 发送"
                     >
+                    <div ng-if="!connected">您已掉线</div>
                 </div>
             </div>
         </div>
