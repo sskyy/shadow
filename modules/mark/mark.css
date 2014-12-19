@@ -2,8 +2,9 @@
     background: #fff;
     padding: 2px 8px;
     border-left: 3px #9AE4F1 solid;
-    opacity: .5;
+    opacity: .7;
     transition: opacity .2s;
+    white-space: nowrap;
 }
 [mark-mode=true] [mark]{
     opacity: 1;

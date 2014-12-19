@@ -22,13 +22,14 @@
       mark: {
         host : 'http://chat.zerojs.io:3002',
         visible: false,
-        controlKeyCode : /AppleWebKit/.test(navigator.userAgent) ? 93 : 17
+        controlKeyCode : /AppleWebKit/.test(navigator.userAgent) ? 91 : 17
       },
       scanner : true,
       auto: false
     }
     this.messenger = messenger.set('host',this.config.host)
 
+    console.log( /AppleWebKit/.test(navigator.userAgent),"isApple")
 
     this.setup()
   }
