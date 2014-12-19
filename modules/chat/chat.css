@@ -167,6 +167,10 @@ input[app-room-input]{
     background-repeat: no-repeat ;
 }
 
+[app-conversations-status].active{
+    background-image: url("../../images/popup-active.svg");
+}
+
 [app-conversations]{
     padding: 8px 15px 8px 15px;
 }

@@ -225,7 +225,7 @@ button{
 
 [window=min]{
     width: auto;
-    height: 35px !important;
+    height: 34px !important;
     border-bottom-left-radius: 0;
     border-bottom-right-radius: 0;
 }

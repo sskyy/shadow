@@ -133,9 +133,10 @@ angular.module('chat', ['inlineattachment','ngSanitize']).config(function($sceDe
             console.log("update unread")
             $scope.conversations[conversationUser.id].unread ++
             console.log("conversation id", JSON.stringify($scope.conversations[conversationUser.id]))
-
           }
 
+          $scope.messageComing = true
+          console.log( $scope.messageComing)
           $scope.$emit('message.received')
         }
 

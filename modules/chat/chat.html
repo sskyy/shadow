@@ -31,7 +31,7 @@
                 <div app-slogon>我们是新潮社交</div>
             </div>
             <div window-handlers>
-                <a window-handler-minimal></a>
+                <a window-handler-minimal ng-click="messageComing=null"></a>
                 <a window-handler-setting>
                     <div window-handler-dropdown>
                         <div window-handler-dropdown-item >
@@ -54,8 +54,8 @@
             </div>
         </div>
 
-        <div window-overview window-handler-full-trigger>
-            <div app-conversations-status></div>
+        <div window-overview window-handler-full-trigger >
+            <div app-conversations-status ng-class="{active:messageComing}" ng-click="messageComing=null"></div>
         </div>
 
 
@@ -64,8 +64,8 @@
                 <input app-room-input type="text" ng-keyup="$event.keyCode==13&&join(room)" ng-model="room" ng-disabled="locked">
             </div>
 
-            <div app-info ng-if="info">
-                <span ng-if="info.code=409">您的账号已在别处登陆</span>
+            <div app-info ng-if="info&&info.code!==200">
+                <span ng-if="info.code==409">您的账号已在别处登陆</span>
                 <a ng-click="clearInfo()" app-info-close>x</a>
             </div>
 
