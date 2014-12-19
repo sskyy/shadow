@@ -180,12 +180,14 @@ angular.module("index",['chat','mark'])
         $ele[0].innerHTML = ""
         $ele.append($checkbox).append($label)
 
-        $ele.click(function sendChangeRequest(){
+        $ele.click(function sendChangeRequest(e){
           checked = !checked
           setRef( currentConfig, item, checked?trueValue:falseValue )
-          console.log( JSON.stringify(currentConfig),"currentConfig")
           messenger.fire("config.set", currentConfig)
-          $checkbox.attr("checked",checked)
+          e.stopPropagation()
+          e.preventDefault()
+          $checkbox.prop("checked", checked)
+          console.log( JSON.stringify(currentConfig),"currentConfig",checked)
         })
       }
     }

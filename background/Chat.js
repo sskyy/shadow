@@ -9,8 +9,8 @@
     this.user = null
     this.currentTab = null
     this.config = {
-      host : 'http://chat.zerojs.io:3002',
-      //host : 'http://127.0.0.1:3000',
+      //host : 'http://chat.zerojs.io:3002',
+      host : 'http://127.0.0.1:3000',
       chat: {
         //this was used to generate qiniu uptoken
         host : 'http://chat.zerojs.io:3002',
@@ -24,6 +24,7 @@
         visible: false,
         controlKeyCode : /AppleWebKit/.test(navigator.userAgent) ? 93 : 17
       },
+      scanner : true,
       auto: false
     }
     this.messenger = messenger.set('host',this.config.host)
@@ -135,15 +136,7 @@
   Chat.prototype.setup = function(){
     var root = this
 
-    chrome.tabs.onActivated.addListener(function( tab ){
-      console.log("setting active tab", tab)
-      root.currentTab = tab.id
-    })
 
-    chrome.tabs.onUpdated.addListener(function( tabId ){
-       console.log("update tab",tabId)
-      if( !root.currentTab ) root.currentTab = tabId
-    })
 
     root.messenger.on("client.login",function( respond, user){
       root.login( user, function(err){
@@ -249,20 +242,26 @@
     })
   }
 
-  Chat.prototype.inject = function( tabId, type){
+  Chat.prototype.inject = function( whatToInject, tabId, type){
     console.log("deal with inject", tabId, type)
     var root = this
-    root.currentTab = tabId
-    type = type || "auto"
+    if( whatToInject == 'app'){
+      root.currentTab = tabId
+      type = type || "auto"
 
-    if( root.insertedTabs[tabId] && type!=='reload' ) return console.log( tabId, "already injected.")
+      if( root.insertedTabs[tabId] && type!=='reload' ) return console.log( tabId, "already injected.")
 
-    //whether auto inject depend on chat.auto
-    if( root.config.auto || type== "force" || (root.insertedTabs[tabId] && type=="reload" )){
-      root.injector.inject( tabId, function(){
-        root.insertedTabs[tabId] = true
-      })
+      //whether auto inject depend on chat.auto
+      if( type== "force" || (root.insertedTabs[tabId] && type=="reload" ) || !root.insertedTabs[tabId]){
+        root.injector.inject("app", tabId, function(){
+          root.insertedTabs[tabId] = true
+        })
+      }
+    }else{
+      //inject scanner
+      root.injector.inject(whatToInject, tabId, _.noop)
     }
+
   }
 
   Chat.prototype.remove = function( tabId){

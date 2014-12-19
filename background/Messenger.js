@@ -19,6 +19,7 @@
     var root = this
     chrome.runtime.onMessage.addListener( function(request, sender, respond) {
       console.log("received tab message", request, sender.tab.id)
+      if( !_.isObject(request) || !request.cmd ) return console.log("not a standard client request")
       root.fire( "client."+request.cmd, respond, request.data, sender.tab.id)
       return true
     });
