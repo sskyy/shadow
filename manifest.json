@@ -2,7 +2,7 @@
 	"manifest_version" : 2,
 	"name" : "shadow",
 	"description" : "The world behind what you see.",
-	"version" : "0.4",
+	"version" : "0.4.1",
 	"background": {
 	  "scripts": [
 		"lib/lodash.min.js",

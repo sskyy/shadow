@@ -9,11 +9,12 @@
     this.user = null
     this.currentTab = null
     this.config = {
-      //host : 'http://chat.zerojs.io:3002',
-      host : 'http://127.0.0.1:3000',
+      host : 'http://chat.zerojs.io:3002',
+      //host : 'http://127.0.0.1:3000',
       chat: {
         //this was used to generate qiniu uptoken
-        host : 'http://127.0.0.1:3000',
+        host : 'http://chat.zerojs.io:3002',
+        //host : 'http://127.0.0.1:3000',
         mode: 'full',
         autoReconnect: true,
         locked : false
